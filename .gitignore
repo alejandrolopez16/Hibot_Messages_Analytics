@@ -1,0 +1,11 @@
+# Variables de entorno (¡CRÍTICO!)
+.env
+
+# Entornos virtuales de Python
+.venv/
+__pycache__/
+*.pyc
+
+# Dependencias de Node.js (Frontend)
+node_modules/
+dist/
