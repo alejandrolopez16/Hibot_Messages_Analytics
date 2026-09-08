@@ -54,12 +54,6 @@ const outboundShare = computed(() => {
   return `${formatPercent(t.outbound.total, traffic)} del tráfico total`
 })
 
-const templateShare = computed(() => {
-  const t = totals.value
-  if (!t) return ''
-  return `${formatPercent(t.outbound.template, t.outbound.total)} de los salientes`
-})
-
 const messagesPerConversation = computed(() => {
   const t = totals.value
   if (!t || !t.conversations) return '—'
@@ -259,13 +253,6 @@ onMounted(() => {
             :loading="loading"
           />
           <KpiCard
-            label="Salientes por template"
-            :value="totals?.outbound.template ?? 0"
-            :caption="templateShare"
-            accent="#F0B429"
-            :loading="loading"
-          />
-          <KpiCard
             label="Mensajes continuos"
             :value="totals?.consecutive.total ?? 0"
             :caption="consecutiveCaption"
@@ -281,7 +268,7 @@ onMounted(() => {
           <FlowStrip :incoming="totals.incoming" :outbound="totals.outbound" />
         </section>
 
-        <OutboundDonut v-if="totals && !loading" :outbound="totals.outbound" />
+        <OutboundDonut v-if="totals && !loading" :outbound="totals.outbound" :conversations="totals.conversations" />
 
         <!-- Detalle por canal -->
         <section class="overflow-hidden rounded-lg border border-line bg-surface-1">

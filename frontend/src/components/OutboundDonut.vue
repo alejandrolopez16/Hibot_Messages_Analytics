@@ -2,12 +2,13 @@
 import { computed } from 'vue'
 import { Doughnut } from 'vue-chartjs'
 import { ArcElement, Chart as ChartJS, Legend, Tooltip } from 'chart.js'
-import { OUTBOUND_SEGMENTS, formatNumber, formatPercent } from '../constants/outbound'
+import { OUTBOUND_SEGMENTS, CONSECUTIVE_COLOR_BOT, CONSECUTIVE_COLOR_AGENT, formatNumber, formatPercent } from '../constants/outbound'
 
 ChartJS.register(ArcElement, Tooltip, Legend)
 
 const props = defineProps({
   outbound: { type: Object, required: true },
+  conversations: { type: Number, default: 0 },
 })
 
 const segments = computed(() =>
@@ -18,6 +19,14 @@ const segments = computed(() =>
 )
 
 const total = computed(() => props.outbound?.total ?? 0)
+
+function avgPerConv(value) {
+  if (!props.conversations) return '—'
+  return (value / props.conversations).toFixed(1)
+}
+
+const botAvg = computed(() => avgPerConv(props.outbound?.bot ?? 0))
+const agentAvg = computed(() => avgPerConv(props.outbound?.agent ?? 0))
 
 const chartData = computed(() => ({
   labels: segments.value.map((segment) => segment.label),
@@ -98,6 +107,22 @@ const chartOptions = {
           <span class="w-11 text-right font-mono text-xs tabular-nums text-muted">
             {{ formatPercent(segment.value, total) }}
           </span>
+        </li>
+
+        <li class="border-t border-line pt-2.5">
+          <p class="mb-1.5 font-condensed text-[10px] uppercase tracking-[0.16em] text-muted">
+            Promedio por conversación
+          </p>
+          <div class="flex items-center gap-3">
+            <span class="h-2.5 w-2.5 shrink-0 rounded-sm" :style="{ backgroundColor: CONSECUTIVE_COLOR_BOT }" />
+            <span class="flex-1 text-sm text-ink-200">Bot</span>
+            <span class="font-mono text-sm tabular-nums text-ink-50">{{ botAvg }}</span>
+          </div>
+          <div class="mt-1.5 flex items-center gap-3">
+            <span class="h-2.5 w-2.5 shrink-0 rounded-sm" :style="{ backgroundColor: CONSECUTIVE_COLOR_AGENT }" />
+            <span class="flex-1 text-sm text-ink-200">Agente</span>
+            <span class="font-mono text-sm tabular-nums text-ink-50">{{ agentAvg }}</span>
+          </div>
         </li>
       </ul>
     </div>
