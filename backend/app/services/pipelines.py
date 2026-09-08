@@ -18,6 +18,9 @@ from typing import Any
 
 IS_CONTACT: dict[str, Any] = {"$eq": ["$from", "CONTACT"]}
 IS_OUTBOUND: dict[str, Any] = {"$ne": ["$from", "CONTACT"]}
+IS_BOT: dict[str, Any] = {"$eq": ["$from", "BOT"]}
+IS_AGENT: dict[str, Any] = {"$eq": ["$from", "AGENT"]}
+IS_BOT_OR_AGENT: dict[str, Any] = {"$in": ["$from", ["BOT", "AGENT"]]}
 
 # `template` puede venir ausente, null o "". `$ifNull` normaliza los tres casos
 # a "" para que la comparación sea una sola.
@@ -66,6 +69,49 @@ def conversations_pipeline(match: dict[str, Any]) -> list[dict[str, Any]]:
     return [
         {"$match": match},
         {"$group": {"_id": "$channelId", "conversations": {"$sum": 1}}},
+    ]
+
+
+def consecutive_pipeline(match: dict[str, Any]) -> list[dict[str, Any]]:
+    """Mensajes continuos de BOT o AGENT: desde el segundo mensaje seguido sin respuesta del CONTACT.
+
+    Usa `$setWindowFields` con `$shift` para comparar cada mensaje con el
+    anterior de la misma conversación sin materializar arrays por partición.
+    Requiere MongoDB 5.0+ (disponible en Atlas).
+    """
+    return [
+        {"$match": match},
+        {
+            "$setWindowFields": {
+                "partitionBy": "$conversationId",
+                "sortBy": {"created": 1},
+                "output": {
+                    "prev_from": {
+                        "$shift": {
+                            "output": "$from",
+                            "by": -1,
+                            "default": None,
+                        }
+                    }
+                },
+            }
+        },
+        # Solo los mensajes donde tanto el actual como el anterior son BOT o AGENT.
+        # El primer mensaje de cada partición tendrá prev_from=None y quedará fuera.
+        {
+            "$match": {
+                "from": {"$in": ["BOT", "AGENT"]},
+                "prev_from": {"$in": ["BOT", "AGENT"]},
+            }
+        },
+        {
+            "$group": {
+                "_id": "$channelId",
+                "consecutive_bot": _count_if(IS_BOT),
+                "consecutive_agent": _count_if(IS_AGENT),
+                "consecutive_total": {"$sum": 1},
+            }
+        },
     ]
 
 

@@ -9,6 +9,11 @@
 
 export const INBOUND_COLOR = '#3FD0C9'
 
+export const CONSECUTIVE_COLOR_BOT = '#8B7BF0'
+export const CONSECUTIVE_COLOR_AGENT = '#4A9EFF'
+export const CONSECUTIVE_LABEL = 'Mensajes continuos'
+export const CONSECUTIVE_HINT = 'Segundo mensaje seguido de BOT o AGENT sin respuesta del contacto'
+
 export const OUTBOUND_SEGMENTS = [
   { key: 'template', label: 'Template', color: '#F0B429', hint: 'Salientes con plantilla (HSM)' },
   { key: 'bot', label: 'Bot', color: '#8B7BF0', hint: 'Respuestas automáticas sin plantilla' },

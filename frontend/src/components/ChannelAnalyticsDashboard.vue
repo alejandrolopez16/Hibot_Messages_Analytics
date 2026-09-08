@@ -4,7 +4,7 @@ import FlowStrip from './FlowStrip.vue'
 import KpiCard from './KpiCard.vue'
 import OutboundDonut from './OutboundDonut.vue'
 import { useChannelReport } from '../composables/useChannelReport'
-import { INBOUND_COLOR, OUTBOUND_SEGMENTS, formatNumber, formatPercent } from '../constants/outbound'
+import { INBOUND_COLOR, OUTBOUND_SEGMENTS, CONSECUTIVE_COLOR_BOT, CONSECUTIVE_COLOR_AGENT, formatNumber, formatPercent } from '../constants/outbound'
 import { DEFAULT_TIMEZONE, TIMEZONE_OPTIONS } from '../constants/timezones'
 
 const MAX_DAYS = 31
@@ -64,6 +64,12 @@ const messagesPerConversation = computed(() => {
   const t = totals.value
   if (!t || !t.conversations) return '—'
   return ((t.incoming + t.outbound.total) / t.conversations).toFixed(1)
+})
+
+const consecutiveCaption = computed(() => {
+  const t = totals.value
+  if (!t) return ''
+  return `BOT ${formatNumber(t.consecutive.bot)} · Agente ${formatNumber(t.consecutive.agent)}`
 })
 
 const activeRows = computed(() =>
@@ -259,6 +265,13 @@ onMounted(() => {
             accent="#F0B429"
             :loading="loading"
           />
+          <KpiCard
+            label="Mensajes continuos"
+            :value="totals?.consecutive.total ?? 0"
+            :caption="consecutiveCaption"
+            accent="#8B7BF0"
+            :loading="loading"
+          />
         </div>
 
         <section v-if="totals && !loading" class="rounded-lg border border-line bg-surface-1 p-5">
@@ -300,6 +313,9 @@ onMounted(() => {
                   <th class="px-3 py-2.5 text-right font-medium">Entrantes</th>
                   <th class="px-3 py-2.5 text-right font-medium">Salientes</th>
                   <th class="px-3 py-2.5 text-right font-medium">Template</th>
+                  <th class="px-3 py-2.5 text-right font-medium">Cont. Total</th>
+                  <th class="px-3 py-2.5 text-right font-medium">Cont. BOT</th>
+                  <th class="px-3 py-2.5 text-right font-medium">Cont. Agente</th>
                   <th class="w-40 px-5 py-2.5 text-left font-medium">Composición</th>
                 </tr>
               </thead>
@@ -332,6 +348,15 @@ onMounted(() => {
                   </td>
                   <td class="px-3 py-3 text-right font-mono tabular-nums text-amber">
                     {{ formatNumber(row.outbound.template) }}
+                  </td>
+                  <td class="px-3 py-3 text-right font-mono tabular-nums">
+                    {{ formatNumber(row.consecutive.total) }}
+                  </td>
+                  <td class="px-3 py-3 text-right font-mono tabular-nums" :style="{ color: CONSECUTIVE_COLOR_BOT }">
+                    {{ formatNumber(row.consecutive.bot) }}
+                  </td>
+                  <td class="px-3 py-3 text-right font-mono tabular-nums" :style="{ color: CONSECUTIVE_COLOR_AGENT }">
+                    {{ formatNumber(row.consecutive.agent) }}
                   </td>
                   <td class="px-5 py-3">
                     <FlowStrip :incoming="row.incoming" :outbound="row.outbound" compact />

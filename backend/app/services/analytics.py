@@ -17,6 +17,7 @@ from app.models.reports import (
     ChannelReportRequest,
     ChannelReportResponse,
     ChannelReportRow,
+    ConsecutiveBreakdown,
     FilterMode,
     OutboundBreakdown,
     ReportTotals,
@@ -133,16 +134,18 @@ class AnalyticsService:
             channel_ids=channel_ids,
         )
 
-        # Las dos agregaciones son independientes y golpean nodos secundarios
+        # Las tres agregaciones son independientes y golpean nodos secundarios
         # distintos del replica set, así que corren en paralelo. El tiempo total
-        # es el de la más lenta y no la suma de ambas.
-        conversations, messages = await asyncio.gather(
+        # es el de la más lenta y no la suma de las tres.
+        conversations, messages, consecutive = await asyncio.gather(
             self._aggregate(self._conversations, pipelines.conversations_pipeline(match), "conversations"),
             self._aggregate(self._messages, pipelines.messages_pipeline(match), "messages"),
+            self._aggregate(self._messages, pipelines.consecutive_pipeline(match), "consecutive"),
         )
 
         conv_by_channel = {doc["_id"]: doc for doc in conversations if doc.get("_id")}
         msg_by_channel = {doc["_id"]: doc for doc in messages if doc.get("_id")}
+        cons_by_channel = {doc["_id"]: doc for doc in consecutive if doc.get("_id")}
 
         # Canales con tráfico que no estaban en el scope inicial (por ejemplo,
         # canales eliminados que aún tienen histórico de mensajes).
@@ -154,7 +157,13 @@ class AnalyticsService:
         # Solo se reportan canales WhatsApp: los que aparecen por tráfico pero
         # no están en `metadata` son de otro tipo y quedan fuera del cálculo.
         rows = [
-            self._build_row(channel_id, metadata[channel_id], conv_by_channel.get(channel_id), msg_by_channel.get(channel_id))
+            self._build_row(
+                channel_id,
+                metadata[channel_id],
+                conv_by_channel.get(channel_id),
+                msg_by_channel.get(channel_id),
+                cons_by_channel.get(channel_id),
+            )
             for channel_id in metadata
         ]
         rows.sort(key=lambda r: (r.incoming + r.outbound.total, r.conversations), reverse=True)
@@ -248,6 +257,7 @@ class AnalyticsService:
         meta: dict[str, Any] | None,
         conversation_doc: dict[str, Any] | None,
         message_doc: dict[str, Any] | None,
+        consecutive_doc: dict[str, Any] | None,
     ) -> ChannelReportRow:
         message_doc = message_doc or {}
         total = int(message_doc.get("outbound_total", 0))
@@ -255,6 +265,8 @@ class AnalyticsService:
         bot = int(message_doc.get("outbound_bot", 0))
         agent = int(message_doc.get("outbound_agent", 0))
         external = int(message_doc.get("outbound_external", 0))
+
+        consecutive_doc = consecutive_doc or {}
 
         return ChannelReportRow(
             channelId=channel_id,
@@ -271,6 +283,11 @@ class AnalyticsService:
                 external=external,
                 other=max(total - (template + bot + agent + external), 0),
             ),
+            consecutive=ConsecutiveBreakdown(
+                total=int(consecutive_doc.get("consecutive_total", 0)),
+                bot=int(consecutive_doc.get("consecutive_bot", 0)),
+                agent=int(consecutive_doc.get("consecutive_agent", 0)),
+            ),
         )
 
     @staticmethod
@@ -285,4 +302,7 @@ class AnalyticsService:
             totals.outbound.agent += row.outbound.agent
             totals.outbound.external += row.outbound.external
             totals.outbound.other += row.outbound.other
+            totals.consecutive.total += row.consecutive.total
+            totals.consecutive.bot += row.consecutive.bot
+            totals.consecutive.agent += row.consecutive.agent
         return totals

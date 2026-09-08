@@ -168,6 +168,14 @@ class OutboundBreakdown(BaseModel):
     )
 
 
+class ConsecutiveBreakdown(BaseModel):
+    """Mensajes continuos de BOT o AGENT (segundo mensaje seguido sin respuesta del CONTACT)."""
+
+    total: int = Field(0, description="Total de mensajes continuos (BOT + AGENT).")
+    bot: int = Field(0, description="Mensajes continuos cuyo `from == BOT`.")
+    agent: int = Field(0, description="Mensajes continuos cuyo `from == AGENT`.")
+
+
 class ChannelReportRow(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
@@ -178,6 +186,7 @@ class ChannelReportRow(BaseModel):
     conversations: int = Field(0, description="Conversaciones creadas en el rango.")
     incoming: int = Field(0, description="Mensajes entrantes (`from == CONTACT`) en el rango.")
     outbound: OutboundBreakdown = Field(default_factory=OutboundBreakdown)
+    consecutive: ConsecutiveBreakdown = Field(default_factory=ConsecutiveBreakdown)
 
 
 class ReportTotals(BaseModel):
@@ -185,6 +194,7 @@ class ReportTotals(BaseModel):
     conversations: int = Field(0, description="Suma de conversaciones del periodo.")
     incoming: int = Field(0, description="Suma de mensajes entrantes del periodo.")
     outbound: OutboundBreakdown = Field(default_factory=OutboundBreakdown)
+    consecutive: ConsecutiveBreakdown = Field(default_factory=ConsecutiveBreakdown)
 
 
 class ChannelReportResponse(BaseModel):
