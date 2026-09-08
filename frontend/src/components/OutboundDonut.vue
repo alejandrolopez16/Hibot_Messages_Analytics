@@ -108,23 +108,25 @@ const chartOptions = {
             {{ formatPercent(segment.value, total) }}
           </span>
         </li>
-
-        <li class="border-t border-line pt-2.5">
-          <p class="mb-1.5 font-condensed text-[10px] uppercase tracking-[0.16em] text-muted">
-            Promedio por conversación
-          </p>
-          <div class="flex items-center gap-3">
-            <span class="h-2.5 w-2.5 shrink-0 rounded-sm" :style="{ backgroundColor: CONSECUTIVE_COLOR_BOT }" />
-            <span class="flex-1 text-sm text-ink-200">Bot</span>
-            <span class="font-mono text-sm tabular-nums text-ink-50">{{ botAvg }}</span>
-          </div>
-          <div class="mt-1.5 flex items-center gap-3">
-            <span class="h-2.5 w-2.5 shrink-0 rounded-sm" :style="{ backgroundColor: CONSECUTIVE_COLOR_AGENT }" />
-            <span class="flex-1 text-sm text-ink-200">Agente</span>
-            <span class="font-mono text-sm tabular-nums text-ink-50">{{ agentAvg }}</span>
-          </div>
-        </li>
       </ul>
+    </div>
+
+    <div v-if="conversations > 0" class="mt-4 border-t border-line pt-4">
+      <p class="mb-2 font-condensed text-[10px] uppercase tracking-[0.16em] text-muted">
+        Promedio por conversación
+      </p>
+      <div class="flex gap-6">
+        <div class="flex items-center gap-2">
+          <span class="h-2.5 w-2.5 shrink-0 rounded-sm" :style="{ backgroundColor: CONSECUTIVE_COLOR_BOT }" />
+          <span class="text-sm text-ink-200">Bot</span>
+          <span class="font-mono text-sm tabular-nums text-ink-50">{{ botAvg }}</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="h-2.5 w-2.5 shrink-0 rounded-sm" :style="{ backgroundColor: CONSECUTIVE_COLOR_AGENT }" />
+          <span class="text-sm text-ink-200">Agente</span>
+          <span class="font-mono text-sm tabular-nums text-ink-50">{{ agentAvg }}</span>
+        </div>
+      </div>
     </div>
   </section>
 </template>
