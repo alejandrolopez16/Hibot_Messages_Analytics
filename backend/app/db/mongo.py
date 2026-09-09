@@ -49,9 +49,9 @@ class MongoManager:
     def __init__(self) -> None:
         self._client: AsyncIOMotorClient | None = None
 
-    async def connect(self, settings: Settings | None = None) -> None:
+    async def connect(self, settings: Settings | None = None, uri: str | None = None) -> None:
         settings = settings or get_settings()
-        uri = ensure_read_preference(settings.mongo_uri)
+        uri = ensure_read_preference(uri or settings.mongo_uri)
 
         self._client = AsyncIOMotorClient(
             uri,
@@ -93,8 +93,14 @@ class MongoManager:
 
 
 mongo = MongoManager()
+mongo_tp = MongoManager()
 
 
 def get_mongo() -> MongoManager:
-    """Dependencia de FastAPI."""
+    """Dependencia de FastAPI — base de datos principal."""
     return mongo
+
+
+def get_mongo_tp() -> MongoManager:
+    """Dependencia de FastAPI — base de datos TP."""
+    return mongo_tp

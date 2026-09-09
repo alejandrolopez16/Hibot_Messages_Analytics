@@ -9,8 +9,8 @@ from fastapi import APIRouter, Body, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
 from pymongo.errors import ExecutionTimeout, PyMongoError
 
-from app.api.deps import get_current_user
-from app.db.mongo import MongoManager, get_mongo
+from app.api.deps import get_current_user, get_mongo_for_user
+from app.db.mongo import MongoManager
 from app.models.reports import ChannelReportRequest, ChannelReportResponse
 from app.services.analytics import AnalyticsService, ChannelNotFound, LineAmbiguous, LineNotFound
 
@@ -91,7 +91,7 @@ REQUEST_BODY_EXAMPLES = {
 }
 
 
-def get_service(mongo: Annotated[MongoManager, Depends(get_mongo)]) -> AnalyticsService:
+def get_service(mongo: Annotated[MongoManager, Depends(get_mongo_for_user)]) -> AnalyticsService:
     return AnalyticsService(mongo)
 
 

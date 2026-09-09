@@ -10,7 +10,7 @@ from fastapi.responses import JSONResponse
 
 from app.api.routes import auth, reports
 from app.core.config import get_settings
-from app.db.mongo import mongo
+from app.db.mongo import mongo, mongo_tp
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s :: %(message)s")
 
@@ -18,10 +18,13 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await mongo.connect()
+    if settings.mongo_uri_tp:
+        await mongo_tp.connect(uri=settings.mongo_uri_tp)
     try:
         yield
     finally:
         await mongo.close()
+        await mongo_tp.close()
 
 
 settings = get_settings()

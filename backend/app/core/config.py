@@ -12,6 +12,8 @@ class Settings(BaseSettings):
     # La URI DEBE apuntar al replica set (mongodb+srv://...). Si no trae
     # readPreference, el cliente lo inyecta en tiempo de arranque.
     mongo_uri: str = Field(..., alias="MONGO_URI")
+    # URI de la base de datos TP. Si está vacía, adminTP no podrá consultar.
+    mongo_uri_tp: str = Field("", alias="MONGO_URI_TP")
     mongo_db_channels: str = Field("channels", alias="MONGO_DB_CHANNELS")
     mongo_db_interactions: str = Field("interactions", alias="MONGO_DB_INTERACTIONS")
 

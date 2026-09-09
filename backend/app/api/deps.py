@@ -8,6 +8,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError
 
 from app.core.security import USERS_DB, decode_access_token
+from app.db.mongo import MongoManager, get_mongo, get_mongo_tp
 
 _bearer = HTTPBearer(auto_error=False)
 
@@ -41,3 +42,12 @@ def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
     return user
+
+
+def get_mongo_for_user(
+    user: Annotated[dict, Depends(get_current_user)],
+) -> MongoManager:
+    """Devuelve el MongoManager que corresponde a la base de datos del usuario."""
+    if user.get("db") == "tp":
+        return get_mongo_tp()
+    return get_mongo()
