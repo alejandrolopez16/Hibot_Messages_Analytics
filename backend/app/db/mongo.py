@@ -48,6 +48,7 @@ class MongoManager:
 
     def __init__(self) -> None:
         self._client: AsyncIOMotorClient | None = None
+        self.use_index_hint: bool = True
 
     async def connect(self, settings: Settings | None = None, uri: str | None = None) -> None:
         settings = settings or get_settings()

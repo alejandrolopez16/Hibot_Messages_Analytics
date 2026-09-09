@@ -240,10 +240,11 @@ class AnalyticsService:
     async def _aggregate(
         self, collection: AsyncIOMotorCollection, pipeline: list[dict[str, Any]], label: str
     ) -> list[dict[str, Any]]:
+        hint = pipelines.TENANT_CREATED_HINT if self._mongo.use_index_hint else None
         cursor = collection.aggregate(
             pipeline,
             allowDiskUse=True,
-            hint=pipelines.TENANT_CREATED_HINT,
+            **({"hint": hint} if hint else {}),
             maxTimeMS=self._settings.aggregation_max_time_ms,
             # Etiqueta visible en currentOp y en el profiler de Atlas: permite
             # identificar y matar una consulta analítica sin adivinar cuál es.
