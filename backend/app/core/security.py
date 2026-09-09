@@ -16,11 +16,11 @@ from app.core.config import get_settings
 # Modifica username / password aquí y reinicia. No uses estas credenciales
 # en producción sin cambiarlas.
 _RAW_USERS = [
-    {"username": "admin",     "password": "admin123",      "full_name": "Administrador",    "db": "default"},
-    {"username": "analytics", "password": "analytics2024", "full_name": "Equipo Analytics", "db": "default"},
-    {"username": "hibot",     "password": "hibot2024",     "full_name": "Hibot Team",       "db": "default"},
-    {"username": "viewer",    "password": "viewer123",     "full_name": "Solo Vista",       "db": "default"},
-    {"username": "adminTP",   "password": "adminTP123",    "full_name": "Admin TP",         "db": "tp"},
+    {"username": "Soportehibot",     "password": "Hibot2026*",      "full_name": "Soporte Hibot",    "db": "default"},
+    {"username": "HibotCS", "password": "CSHibot2026*", "full_name": "Equipo CS", "db": "default"},
+    {"username": "AdminGC",     "password": "Grupocesa2026*",     "full_name": "Grupo CESA",       "db": "default"},
+    {"username": "Eliasmx",    "password": "Hibot2026*",     "full_name": "Elias MX",       "db": "default"},
+    {"username": "adminTP",   "password": "TPHibot2026*",    "full_name": "Admin TP",         "db": "tp"},
 ]
 
 # Los hashes se calculan una sola vez al importar el módulo.
