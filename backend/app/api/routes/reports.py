@@ -9,9 +9,12 @@ from fastapi import APIRouter, Body, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
 from pymongo.errors import ExecutionTimeout, PyMongoError
 
+from app.api.deps import get_current_user
 from app.db.mongo import MongoManager, get_mongo
 from app.models.reports import ChannelReportRequest, ChannelReportResponse
 from app.services.analytics import AnalyticsService, ChannelNotFound, LineAmbiguous, LineNotFound
+
+CurrentUser = Annotated[dict, Depends(get_current_user)]
 
 logger = logging.getLogger(__name__)
 
@@ -134,6 +137,7 @@ async def _run(service: AnalyticsService, request: ChannelReportRequest) -> Chan
 )
 async def channels_report(
     service: ServiceDep,
+    _: CurrentUser,
     request: Annotated[
         ChannelReportRequest,
         Body(openapi_examples=REQUEST_BODY_EXAMPLES),
@@ -156,6 +160,7 @@ async def channels_report(
 )
 async def channels_report_get(
     service: ServiceDep,
+    _: CurrentUser,
     date_from: Annotated[
         datetime,
         Query(alias="dateFrom", description="Inicio del rango (se interpreta en `timezone`)."),

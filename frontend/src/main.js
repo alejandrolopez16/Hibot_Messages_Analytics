@@ -1,5 +1,7 @@
 import { createApp } from 'vue'
-import ChannelAnalyticsDashboard from './components/ChannelAnalyticsDashboard.vue'
+import { createRouter, createWebHistory } from 'vue-router'
+import router from './router/index.js'
+import App from './App.vue'
 import './index.css'
 
-createApp(ChannelAnalyticsDashboard).mount('#app')
+createApp(App).use(router).mount('#app')

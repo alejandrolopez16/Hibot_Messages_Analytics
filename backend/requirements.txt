@@ -1,4 +1,14 @@
 annotated-doc==0.0.5
+bcrypt==5.0.0
+cffi==2.1.1
+cryptography==50.0.1
+ecdsa==0.19.2
+passlib==1.7.4
+pyasn1==0.6.4
+pycparser==3.0
+python-jose==3.5.0
+rsa==4.9.1
+six==1.17.0
 annotated-types==0.8.0
 anyio==4.14.2
 click==8.5.0

@@ -35,6 +35,11 @@ class Settings(BaseSettings):
     report_cache_ttl_seconds: int = Field(300, alias="REPORT_CACHE_TTL_SECONDS")
     report_cache_max_entries: int = Field(128, alias="REPORT_CACHE_MAX_ENTRIES")
 
+    # --- JWT -----------------------------------------------------------------
+    jwt_secret_key: str = Field("change-this-secret-in-production", alias="JWT_SECRET_KEY")
+    jwt_algorithm: str = Field("HS256", alias="JWT_ALGORITHM")
+    jwt_expire_minutes: int = Field(480, alias="JWT_EXPIRE_MINUTES")  # 8 horas
+
     # --- API -----------------------------------------------------------------
     cors_origins: list[str] = Field(default_factory=lambda: ["http://localhost:5173"], alias="CORS_ORIGINS")
 

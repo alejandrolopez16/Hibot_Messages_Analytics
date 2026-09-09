@@ -1,6 +1,8 @@
 import { computed, ref, shallowRef } from 'vue'
+import { useRouter } from 'vue-router'
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? ''
+const TOKEN_KEY = 'hibot_token'
 
 /**
  * Consume POST /api/v1/analytics/channels-report.
@@ -14,6 +16,7 @@ export function useChannelReport() {
   const report = shallowRef(null)
   const loading = ref(false)
   const error = ref(null)
+  const router = useRouter()
 
   let controller = null
 
@@ -28,12 +31,23 @@ export function useChannelReport() {
     error.value = null
 
     try {
+      const token = localStorage.getItem(TOKEN_KEY)
       const response = await fetch(`${API_BASE}/api/v1/analytics/channels-report`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         signal: controller.signal,
         body: JSON.stringify(buildPayload(filters)),
       })
+
+      if (response.status === 401) {
+        localStorage.removeItem(TOKEN_KEY)
+        localStorage.removeItem('hibot_user')
+        router.push('/login')
+        return
+      }
 
       if (!response.ok) {
         throw new Error(await readError(response))

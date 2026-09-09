@@ -8,7 +8,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.api.routes import reports
+from app.api.routes import auth, reports
 from app.core.config import get_settings
 from app.db.mongo import mongo
 
@@ -91,6 +91,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(auth.router)
 app.include_router(reports.router)
 
 
