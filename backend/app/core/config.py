@@ -35,6 +35,10 @@ class Settings(BaseSettings):
     report_cache_ttl_seconds: int = Field(300, alias="REPORT_CACHE_TTL_SECONDS")
     report_cache_max_entries: int = Field(128, alias="REPORT_CACHE_MAX_ENTRIES")
 
+    # --- Servidor ------------------------------------------------------------
+    # Cloud Run inyecta PORT=8080 automáticamente; en local puedes omitirla.
+    port: int = Field(8080, alias="PORT")
+
     # --- JWT -----------------------------------------------------------------
     jwt_secret_key: str = Field("change-this-secret-in-production", alias="JWT_SECRET_KEY")
     jwt_algorithm: str = Field("HS256", alias="JWT_ALGORITHM")
