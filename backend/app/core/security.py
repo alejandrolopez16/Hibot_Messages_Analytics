@@ -7,12 +7,10 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
 
+import bcrypt
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 
 from app.core.config import get_settings
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # ── Usuarios hardcodeados ─────────────────────────────────────────────────────
 # Modifica username / password aquí y reinicia. No uses estas credenciales
@@ -29,7 +27,7 @@ USERS_DB: dict[str, dict] = {
     u["username"]: {
         "username": u["username"],
         "full_name": u["full_name"],
-        "hashed_password": pwd_context.hash(u["password"]),
+        "hashed_password": bcrypt.hashpw(u["password"].encode(), bcrypt.gensalt()),
     }
     for u in _RAW_USERS
 }
@@ -40,7 +38,7 @@ def authenticate_user(username: str, password: str) -> dict | None:
     user = USERS_DB.get(username)
     if not user:
         return None
-    if not pwd_context.verify(password, user["hashed_password"]):
+    if not bcrypt.checkpw(password.encode(), user["hashed_password"]):
         return None
     return user
 

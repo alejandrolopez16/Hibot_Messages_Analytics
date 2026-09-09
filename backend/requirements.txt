@@ -3,7 +3,6 @@ bcrypt==5.0.0
 cffi==2.1.1
 cryptography==50.0.1
 ecdsa==0.19.2
-passlib==1.7.4
 pyasn1==0.6.4
 pycparser==3.0
 python-jose==3.5.0
